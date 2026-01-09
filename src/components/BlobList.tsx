@@ -9,9 +9,7 @@ export function BlobList({ account }) {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-
-  console.log(blobs)
-
+  
   return (
     <div className="px-0 py-0 w-full lg:w-1/2 border-1 border-shelbypink rounded-md">
       {blobs?.map((blob) => (
