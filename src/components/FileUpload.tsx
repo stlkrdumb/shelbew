@@ -13,6 +13,7 @@ export function FileUpload() {
     client: shelbyClient,
     onSuccess: () => {
       alert("Files uploaded successfully!");
+      window.location.reload()
       setSelectedFiles([]);
     },
     onError: (error) => {

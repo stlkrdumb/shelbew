@@ -8,7 +8,7 @@ export const BlobListPage = () => {
 
     if (!connected) {
         return (
-            <div>Please connect your wallet first</div>
+            <div className="hidden">Please connect your wallet first</div>
         )
     }
     
