@@ -1,24 +1,18 @@
 "use client";
 
 import { BlobList } from "../components/BlobList";
+import { useCallback } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 export const BlobListPage = () => {
-    const { account, connected } = useWallet();
-    
+    const { account, connected, signAndSubmitTransaction } = useWallet();
+    console.log(connected)
+    if (!connected || !account || !signAndSubmitTransaction) {
+        return;
+    }
     if (connected) {
         return (
-            <>
-            <div className="flex justify-center">
-                  <BlobList account={account.address}/>
-            </div>
-            </>
+            <BlobList account={account.address.toStringLongWithoutPrefix()}/>
         )
-    }
-
-     if (!connected && !account) {
-        return (
-            <div className="hidden">Please connect your wallet first</div>
-        )
-    }
+    }    
 }

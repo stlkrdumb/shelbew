@@ -71,20 +71,27 @@ export function FileUpload() {
 
       {connected && (
         <div>
-          <div className="border-2 b-chocodark p-3 rounded-md flex items-center justify-center">
-            <img className="fill-white mr-2 h-auto w-10" src="/add-media-image.svg" />
-            <label htmlFor="file-upload">
+          <div className="border-2 b-chocodark p-3 rounded-md h-30 flex items-center justify-center relative">
+            <label className="cursor-pointer inset-0 opacity-0 absolute" htmlFor="file-upload">
+              <img className="fill-white mr-2 h-auto w-10" src="/add-media-image.svg" />
               <span className="text-blue-500 font-bold cursor-pointer">Choose a file</span>
-              <input
-              type="file"
-              multiple
-              className="sr-only"
-              name="file-upload"
-              id="file-upload"
-              onChange={handleFileSelect}
-              />
-              <p className="text-xs/5 text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                <input
+                type="file"
+                multiple
+                className="sr-only"
+                name="file-upload"
+                id="file-upload"
+                onChange={handleFileSelect}
+                />
+                <p className="text-xs/5 text-gray-400">PNG, JPG, GIF up to 10MB</p>
             </label>
+
+            <div className="text-center">
+              <img className="mx-auto h-auto w-10" src="/add-media-image.svg" />
+              <p className="text-blue-500 font-bold text-pink-200">Choose a file</p>
+              <p className="text-xs/5 text-gray-400">PNG, JPG, GIF up to 10MB</p>
+            </div>
+              
           </div>
           <button
             className="px-3 py-2 cursor-pointer mt-2 w-full lg:w-100 bg-shelbypink text-white font-medim rounded-md hover:bg-pink-900"
