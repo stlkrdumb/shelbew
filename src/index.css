@@ -1,2 +1,11 @@
 
 @import "tailwindcss";
+
+@theme {
+    --color-chocodark: #352819;
+    --color-shelbypink: #FF76C8;
+}
+
+.wallet-button {
+    background-color: #FF76C8;
+}

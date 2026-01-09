@@ -70,9 +70,10 @@ export function FileUpload() {
 
       {connected && (
         <div>
-          <div className="border-2 b-pink-800 p-3 rounded-md w-100 h-50 flex items-center justify-center">
+          <div className="border-2 b-chocodark p-3 rounded-md flex items-center justify-center">
+            <img className="fill-white mr-2 h-auto w-10" src="/add-media-image.svg" />
             <label htmlFor="file-upload">
-              <span className="text-blue-500 font-bold">Upload a file</span>
+              <span className="text-blue-500 font-bold cursor-pointer">Choose a file</span>
               <input
               type="file"
               multiple
@@ -83,18 +84,17 @@ export function FileUpload() {
               />
               <p className="text-xs/5 text-gray-400">PNG, JPG, GIF up to 10MB</p>
             </label>
-
-            <button
-            className="p-3 bg-pink-800 text-white font-medim rounded-r-sm"
+          </div>
+          <button
+            className="px-3 py-2 cursor-pointer mt-2 w-full lg:w-100 bg-shelbypink text-white font-medim rounded-md hover:bg-pink-900"
             onClick={handleUpload}
             disabled={uploadBlobs.isPending || selectedFiles.length === 0}
           >
-            {uploadBlobs.isPending ? "Uploading..." : "Upload Files"}
+            {uploadBlobs.isPending ? "Uploading..." : "Upload"}
           </button>
-          </div>
           {selectedFiles.length > 0 && (
             <div>
-              <ul className="bg-pink-100 p-2 font-medium rounded-sm border-1">
+              <ul className="bg-chocodark px-2 py-1 mt-1 text-sm text-gray-500 font-medium rounded-sm border-1 border-shelbypink">
                 {selectedFiles.map((file, index) => (
                   <li key={index}>
                     {file.name} ({(file.size / 1024).toFixed(2)} KB)

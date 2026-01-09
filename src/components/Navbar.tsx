@@ -1,9 +1,13 @@
 import { WalletConnection } from "./WalletConnection"
+import Logo from "../../public/logo.svg"
 
 export function Navbar() {
     return (
-        <nav className="p-2 bg-pink-500 text-white text-lg flex flex-row items-center justify-between">
-            <p className="logo font-bold">Shelbew</p>
+        <nav className="p-2 bg-chocodark text-white text-lg flex flex-row items-center justify-between">
+            
+            <p className="logo flex items-center">
+                <img src="./logo.svg" className="w-12 mr-2 h-auto"/>
+                <span className="font-bold text-shelbypink">Shelbew</span></p>
             <WalletConnection/>
         </nav>
     )
