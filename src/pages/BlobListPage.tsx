@@ -5,12 +5,6 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 export const BlobListPage = () => {
     const { account, connected } = useWallet();
-
-    if (!connected) {
-        return (
-            <div className="hidden">Please connect your wallet first</div>
-        )
-    }
     
     if (connected) {
         return (
@@ -19,6 +13,12 @@ export const BlobListPage = () => {
                   <BlobList account={account.address}/>
             </div>
             </>
+        )
+    }
+
+     if (!connected && !account) {
+        return (
+            <div className="hidden">Please connect your wallet first</div>
         )
     }
 }
