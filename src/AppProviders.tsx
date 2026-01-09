@@ -13,7 +13,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         dappConfig={{ 
           network: Network.SHELBYNET,
           // It is recommended to add your API key to this configuration object.
-           aptosApiKeys: { shelbynet: 'aptoslabs_39rdobhq9hs_PaBNwKwQeikVuWqZWC7GP5twBhAcyxT1p'},
+           aptosApiKeys: { shelbynet: import.meta.env.VITE_PUBLIC_SHELBYNET_API_KEY},
         }}
       >
         {children}

@@ -4,5 +4,5 @@ import { Network } from "@aptos-labs/ts-sdk";
 
 export const shelbyClient = new ShelbyClient({
   network: Network.SHELBYNET,
-  apiKey: 'AG-DWPBUMYLYKNVUMMIIFCV4SQWYD153ZUYZ'
+  apiKey: import.meta.env.VITE_PUBLIC_SHELBYNET_API_KEY as string,
 });
