@@ -1,7 +1,6 @@
 "use client";
 
 import { BlobList } from "../components/BlobList";
-import { useCallback } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 export const BlobListPage = () => {
