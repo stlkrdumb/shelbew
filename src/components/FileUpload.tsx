@@ -4,20 +4,47 @@ import { useState, useCallback } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useUploadBlobs } from "@shelby-protocol/react";
 import { shelbyClient } from "../lib/shelby";
+import { DatePicker } from "./DatePicker";
+import { Modal } from "./Modal";
 
 export function FileUpload() {
   const { account, signAndSubmitTransaction, connected } = useWallet();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
+  // Set default expiration to 7 days from now
+  const defaultExpiration = new Date();
+  defaultExpiration.setDate(defaultExpiration.getDate() + 7);
+  const [expirationDate, setExpirationDate] = useState<Date>(defaultExpiration);
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    message: string;
+    type: "success" | "error" | "info";
+  }>({ title: "", message: "", type: "info" });
+
   const uploadBlobs = useUploadBlobs({
     client: shelbyClient,
     onSuccess: () => {
-      alert("Files uploaded successfully!");
-      window.location.reload()
+      setModalConfig({
+        title: "Success!",
+        message: "Files uploaded successfully!",
+        type: "success",
+      });
+      setModalOpen(true);
       setSelectedFiles([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     },
     onError: (error) => {
-      alert(`Upload failed: ${error.message}`);
+      setModalConfig({
+        title: "Upload Failed",
+        message: error.message,
+        type: "error",
+      });
+      setModalOpen(true);
     },
   });
 
@@ -28,12 +55,22 @@ export function FileUpload() {
 
   const handleUpload = useCallback(async () => {
     if (!connected || !account || !signAndSubmitTransaction) {
-      alert("Please connect your wallet first");
+      setModalConfig({
+        title: "Wallet Not Connected",
+        message: "Please connect your wallet first",
+        type: "info",
+      });
+      setModalOpen(true);
       return;
     }
 
     if (selectedFiles.length === 0) {
-      alert("Please select at least one file");
+      setModalConfig({
+        title: "No Files Selected",
+        message: "Please select at least one file",
+        type: "info",
+      });
+      setModalOpen(true);
       return;
     }
 
@@ -48,9 +85,8 @@ export function FileUpload() {
       }),
     );
 
-    // Set expiration time to 7 days from now (in microseconds)
-    const expirationMicros =
-      (Date.now() * 1000) + (7 * 24 * 60 * 60 * 1000 * 1000);
+    // Convert selected expiration date to microseconds
+    const expirationMicros = expirationDate.getTime() * 1000;
 
     // Upload the blobs to the Shelby network
     uploadBlobs.mutate({
@@ -71,19 +107,20 @@ export function FileUpload() {
 
       {connected && (
         <div>
+
           <div className="border-2 b-chocodark p-3 rounded-md h-30 flex items-center justify-center relative">
             <label className="cursor-pointer inset-0 opacity-0 absolute" htmlFor="file-upload">
               <img className="fill-white mr-2 h-auto w-10" src="/add-media-image.svg" />
               <span className="text-blue-500 font-bold cursor-pointer">Choose a file</span>
-                <input
+              <input
                 type="file"
                 multiple
                 className="sr-only"
                 name="file-upload"
                 id="file-upload"
                 onChange={handleFileSelect}
-                />
-                <p className="text-xs/5 text-gray-400">PNG, JPG, GIF up to 10MB</p>
+              />
+              <p className="text-xs/5 text-gray-400">PNG, JPG, GIF up to 10MB</p>
             </label>
 
             <div className="text-center">
@@ -91,14 +128,46 @@ export function FileUpload() {
               <p className="text-blue-500 font-bold text-pink-200">Choose a file</p>
               <p className="text-xs/5 text-gray-400">PNG, JPG, GIF up to 10MB</p>
             </div>
-              
+
           </div>
+
+          {/* Expiration Date Selector */}
+          <div className="mt-3">
+            <label htmlFor="expiration-date" className="block text-sm font-medium text-gray-300 mb-1">
+              Expiration Date
+            </label>
+            <DatePicker
+              value={expirationDate}
+              onChange={setExpirationDate}
+              minDate={new Date()}
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Files will expire on {expirationDate.toLocaleString()}
+            </p>
+          </div>
+
+
           <button
-            className="px-3 py-2 cursor-pointer mt-2 w-full lg:w-100 bg-shelbypink text-white font-medim rounded-md hover:bg-pink-900"
+            className="px-3 py-2 cursor-pointer mt-2 w-full lg:w-100 bg-shelbypink text-white font-medim rounded-md hover:bg-pink-900 flex items-center justify-center gap-2"
             onClick={handleUpload}
             disabled={uploadBlobs.isPending || selectedFiles.length === 0}
           >
-            {uploadBlobs.isPending ? "Uploading..." : "Upload"}
+            {uploadBlobs.isPending ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Uploading...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Upload
+              </>
+            )}
           </button>
           {selectedFiles.length > 0 && (
             <div>
@@ -120,6 +189,15 @@ export function FileUpload() {
           )}
         </div>
       )}
+
+      {/* Modal */}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
     </div>
   );
 }
