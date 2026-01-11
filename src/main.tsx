@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
 import './index.css'
 import App from './App.tsx'
+import "./polyfills.ts"
 import { AppProviders } from './AppProviders.tsx';
 import UploadPage from './pages/UploadPage.tsx';
 import { Navbar } from './components/Navbar.tsx';
@@ -18,5 +19,5 @@ createRoot(document.getElementById('root')!).render(
         <BlobListPage/>
       </AppProviders>
     </App>
-  </StrictMode>,
+  </StrictMode>
 )
