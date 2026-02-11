@@ -10,6 +10,8 @@ const wasmSensitiveDeps = [
   "@shelby-protocol/clay-codes",
 ];
 
+import path from "path";
+
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
@@ -27,5 +29,10 @@ export default defineConfig({
     optimizeDeps: {
     include: ["buffer", "@aptos-labs/ts-sdk"],
     exclude: wasmSensitiveDeps,
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
     },
 })

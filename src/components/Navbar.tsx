@@ -1,3 +1,4 @@
+import React from "react";
 import { WalletConnection } from "./WalletConnection"
 import Logo from "../../public/logo.svg"
 

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { BlobList } from "../components/BlobList";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 

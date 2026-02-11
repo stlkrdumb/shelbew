@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAccountBlobs } from "@shelby-protocol/react";
 import { shelbyClient } from "../lib/shelby";
 

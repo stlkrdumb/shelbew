@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useUploadBlobs } from "@shelby-protocol/react";
 import { shelbyClient } from "../lib/shelby";
@@ -39,12 +39,37 @@ export function FileUpload() {
       }, 1500);
     },
     onError: (error) => {
+      // Provide user-friendly error messages
+      let userMessage = "Something went wrong while uploading your files.";
+      let messageType: "error" | "info" = "error";
+      
+      // 502 errors often mean the transaction succeeded but the server couldn't send confirmation
+      if (error.message.includes("502") || error.message.includes("Bad Gateway")) {
+        userMessage = "Upload may have completed successfully, but we couldn't confirm it. Please refresh the page to check if your files appear in the list below.";
+        messageType = "info";
+      } else if (error.message.includes("403") || error.message.includes("Forbidden")) {
+        userMessage = "Access denied. Please check your API key configuration.";
+      } else if (error.message.includes("413") || error.message.includes("too large")) {
+        userMessage = "Your files are too large. Please try uploading smaller files.";
+      } else if (error.message.includes("network") || error.message.includes("Network")) {
+        userMessage = "Network error. Please check your internet connection and try again.";
+      } else if (error.message.includes("timeout")) {
+        userMessage = "Upload timed out. Please try again with a better connection.";
+      }
+      
       setModalConfig({
-        title: "Upload Failed",
-        message: error.message,
-        type: "error",
+        title: messageType === "error" ? "Upload Failed" : "Upload Status Uncertain",
+        message: userMessage,
+        type: messageType,
       });
       setModalOpen(true);
+      
+      // For 502 errors, refresh after a delay to check if files actually uploaded
+      if (error.message.includes("502") || error.message.includes("Bad Gateway")) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
     },
   });
 
