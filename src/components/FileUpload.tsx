@@ -34,9 +34,6 @@ export function FileUpload() {
       });
       setModalOpen(true);
       setSelectedFiles([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
     },
     onError: (error) => {
       // Provide user-friendly error messages

@@ -16,19 +16,14 @@ import path from "path";
 export default defineConfig({
     plugins: [
         react(),
-        nodePolyfills({
-        globals: {
-            Buffer: true,
-        },
-        }), 
         tailwindcss(),
         wasm(),
         topLevelAwait()
     ],
     assetsInclude: ['**/*.wasm'],
     optimizeDeps: {
-    include: ["buffer", "@aptos-labs/ts-sdk"],
-    exclude: wasmSensitiveDeps,
+        include: ["buffer", "@aptos-labs/ts-sdk"],
+        exclude: wasmSensitiveDeps,
     },
     resolve: {
       alias: {
