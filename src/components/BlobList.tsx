@@ -30,9 +30,9 @@ export function BlobList({ account }) {
 
   return (
     <div className="px-2 py-0 mx-auto w-full lg:w-1/2">
-      <div className="border-1 border-shelbypink rounded-md">
+      <div className="border border-shelbypink rounded-md">
         {currentBlobs.map((blob) => (
-          <div key={blob.name} className="px-3 py-2 block flex justify-between items-center border-b-1 border-gray-500">
+          <div key={blob.name} className="px-3 py-2 flex justify-between items-center border-b border-gray-500">
             <p>
               <span className="text-gray-400 text-xs">
                 {blob.blobNameSuffix.length > 20 ? blob.blobNameSuffix.substring(0, 20) + '.....' + blob.blobNameSuffix.slice(20, blob.blobNameSuffix.length) : blob.blobNameSuffix}

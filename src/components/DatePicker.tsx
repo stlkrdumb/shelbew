@@ -111,7 +111,7 @@ export function DatePicker({ value, onChange, minDate }: DatePickerProps) {
           h-10 rounded-lg text-sm font-medium transition-all duration-200
           ${disabled ? "text-gray-600 cursor-not-allowed" : "text-gray-300 hover:bg-shelbypink/20 cursor-pointer"}
           ${selected ? "bg-shelbypink text-white hover:bg-shelbypink" : ""}
-          ${today && !selected ? "border-1 border-shelbypink" : ""}
+          ${today && !selected ? "border border-shelbypink" : ""}
         `}
             >
                 {day}
@@ -124,7 +124,7 @@ export function DatePicker({ value, onChange, minDate }: DatePickerProps) {
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full px-3 py-2 bg-chocodark border-1 border-shelbypink rounded-md text-gray-300 text-left focus:outline-none focus:ring-2 focus:ring-shelbypink transition-all duration-200 hover:border-pink-400 cursor-pointer"
+                className="w-full px-3 py-2 bg-chocodark border border-shelbypink rounded-md text-gray-300 text-left focus:outline-none focus:ring-2 focus:ring-shelbypink transition-all duration-200 hover:border-pink-400 cursor-pointer"
             >
                 <div className="flex items-center justify-between">
                     <span>{selectedDate.toLocaleString()}</span>
@@ -140,7 +140,7 @@ export function DatePicker({ value, onChange, minDate }: DatePickerProps) {
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 mt-2 p-4 bg-chocodark border-1 border-shelbypink rounded-lg shadow-2xl w-80 animate-fadeIn">
+                <div className="absolute z-50 mt-2 p-4 bg-chocodark border border-shelbypink rounded-lg shadow-2xl w-80 animate-fadeIn">
                     {/* Month/Year Navigation */}
                     <div className="flex items-center justify-between mb-4">
                         <button
@@ -181,7 +181,7 @@ export function DatePicker({ value, onChange, minDate }: DatePickerProps) {
                     </div>
 
                     {/* Time Picker */}
-                    <div className="pt-4 border-t-1 border-gray-700">
+                    <div className="pt-4 border-t border-gray-700">
                         <label className="block text-sm font-medium text-gray-300 mb-2">Time</label>
                         <div className="flex gap-2">
                             <div className="flex-1">
@@ -202,7 +202,7 @@ export function DatePicker({ value, onChange, minDate }: DatePickerProps) {
                                         if (isNaN(val) || val < 0) setHours(0);
                                         else if (val > 23) setHours(23);
                                     }}
-                                    className="w-full px-3 py-2 bg-chocodark border-1 border-gray-600 rounded-md text-gray-300 text-center focus:outline-none focus:ring-2 focus:ring-shelbypink font-semibold text-lg"
+                                    className="w-full px-3 py-2 bg-chocodark border border-gray-600 rounded-md text-gray-300 text-center focus:outline-none focus:ring-2 focus:ring-shelbypink font-semibold text-lg"
                                     placeholder="00"
                                 />
                                 <p className="text-xs text-gray-500 text-center mt-1">Hours</p>
@@ -226,7 +226,7 @@ export function DatePicker({ value, onChange, minDate }: DatePickerProps) {
                                         if (isNaN(val) || val < 0) setMinutes(0);
                                         else if (val > 59) setMinutes(59);
                                     }}
-                                    className="w-full px-3 py-2 bg-chocodark border-1 border-gray-600 rounded-md text-gray-300 text-center focus:outline-none focus:ring-2 focus:ring-shelbypink font-semibold text-lg"
+                                    className="w-full px-3 py-2 bg-chocodark border border-gray-600 rounded-md text-gray-300 text-center focus:outline-none focus:ring-2 focus:ring-shelbypink font-semibold text-lg"
                                     placeholder="00"
                                 />
                                 <p className="text-xs text-gray-500 text-center mt-1">Minutes</p>

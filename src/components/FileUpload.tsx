@@ -116,7 +116,7 @@ export function FileUpload() {
       blobs,
       expirationMicros,
     });
-  }, [connected, account, signAndSubmitTransaction, selectedFiles, uploadBlobs]);
+  }, [connected, account, signAndSubmitTransaction, selectedFiles, uploadBlobs, expirationDate]);
 
   return (
     <div className="min-h-100 flex justify-center items-center">
@@ -147,7 +147,7 @@ export function FileUpload() {
 
             <div className="text-center">
               <img className="mx-auto h-auto w-10" src="/add-media-image.svg" />
-              <p className="text-blue-500 font-bold text-pink-200">Choose a file</p>
+              <p className="font-bold text-pink-200">Choose a file</p>
               <p className="text-xs/5 text-gray-400">PNG, JPG, GIF up to 10MB</p>
             </div>
 
@@ -193,7 +193,7 @@ export function FileUpload() {
           </button>
           {selectedFiles.length > 0 && (
             <div>
-              <ul className="bg-chocodark px-2 py-1 mt-1 text-sm text-gray-500 font-medium rounded-sm border-1 border-shelbypink">
+              <ul className="bg-chocodark px-2 py-1 mt-1 text-sm text-gray-500 font-medium rounded-sm border border-shelbypink">
                 {selectedFiles.map((file, index) => (
                   <li key={index}>
                     {file.name} ({(file.size / 1024).toFixed(2)} KB)
