@@ -7,6 +7,7 @@ import { AppProviders } from './AppProviders.tsx';
 import UploadPage from './pages/UploadPage.tsx';
 import { Navbar } from './components/Navbar.tsx';
 import { BlobListPage } from './pages/BlobListPage.tsx';
+import { Toaster } from './components/ui/sonner';
 
 
 createRoot(document.getElementById('root')!).render(
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
         <UploadPage/>
         <BlobListPage/>
       </AppProviders>
+      <Toaster />
     </App>
   </StrictMode>
 )

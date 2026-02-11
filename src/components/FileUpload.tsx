@@ -5,7 +5,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useUploadBlobs } from "@shelby-protocol/react";
 import { shelbyClient } from "../lib/shelby";
 import { DatePicker } from "./DatePicker";
-import { Modal } from "./Modal";
+import { toast } from "sonner";
 
 export function FileUpload() {
   const { account, signAndSubmitTransaction, connected } = useWallet();
@@ -16,56 +16,72 @@ export function FileUpload() {
   defaultExpiration.setDate(defaultExpiration.getDate() + 7);
   const [expirationDate, setExpirationDate] = useState<Date>(defaultExpiration);
 
-  // Modal state
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalConfig, setModalConfig] = useState<{
-    title: string;
-    message: string;
-    type: "success" | "error" | "info";
-  }>({ title: "", message: "", type: "info" });
-
   const uploadBlobs = useUploadBlobs({
     client: shelbyClient,
-    onSuccess: () => {
-      setModalConfig({
-        title: "Success!",
-        message: "Files uploaded successfully!",
-        type: "success",
-      });
-      setModalOpen(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onSuccess: (data?: any) => {
+      // Debug: Log the full response to see what we're getting
+      console.log("Upload success! Full response data:", data);
+      console.log("Data type:", typeof data);
+      console.log("Data keys:", data ? Object.keys(data) : "no data");
+      
+      // Get transaction hash from the response if available
+      const txHash = data?.hash || data?.transaction?.hash || data?.transactionHash;
+      
+      if (txHash) {
+        // Show success toast with transaction link
+        toast.success("Files uploaded successfully!", {
+          description: (
+            <a 
+              href={`https://explorer.shelby.xyz/shelbynet/txn/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline"
+            >
+              View transaction: {txHash.slice(0, 8)}...{txHash.slice(-6)}
+            </a>
+          ),
+          duration: 10000,
+        });
+      } else {
+        toast.success("Files uploaded successfully!");
+      }
+      
       setSelectedFiles([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     },
     onError: (error) => {
       // Provide user-friendly error messages
       let userMessage = "Something went wrong while uploading your files.";
-      let messageType: "error" | "info" = "error";
       
       // 502 errors often mean the transaction succeeded but the server couldn't send confirmation
       if (error.message.includes("502") || error.message.includes("Bad Gateway")) {
         userMessage = "Upload may have completed successfully, but we couldn't confirm it. Please refresh the page to check if your files appear in the list below.";
-        messageType = "info";
-      } else if (error.message.includes("403") || error.message.includes("Forbidden")) {
-        userMessage = "Access denied. Please check your API key configuration.";
-      } else if (error.message.includes("413") || error.message.includes("too large")) {
-        userMessage = "Your files are too large. Please try uploading smaller files.";
-      } else if (error.message.includes("network") || error.message.includes("Network")) {
-        userMessage = "Network error. Please check your internet connection and try again.";
-      } else if (error.message.includes("timeout")) {
-        userMessage = "Upload timed out. Please try again with a better connection.";
-      }
-      
-      setModalConfig({
-        title: messageType === "error" ? "Upload Failed" : "Upload Status Uncertain",
-        message: userMessage,
-        type: messageType,
-      });
-      setModalOpen(true);
-      
-      // For 502 errors, refresh after a delay to check if files actually uploaded
-      if (error.message.includes("502") || error.message.includes("Bad Gateway")) {
+        toast.info("Upload Status Uncertain", {
+          description: userMessage,
+          duration: 5000,
+        });
+        
+        // For 502 errors, refresh after a delay to check if files actually uploaded
         setTimeout(() => {
           window.location.reload();
         }, 3000);
+      } else if (error.message.includes("403") || error.message.includes("Forbidden")) {
+        userMessage = "Access denied. Please check your API key configuration.";
+        toast.error("Upload Failed", { description: userMessage });
+      } else if (error.message.includes("413") || error.message.includes("too large")) {
+        userMessage = "Your files are too large. Please try uploading smaller files.";
+        toast.error("Upload Failed", { description: userMessage });
+      } else if (error.message.includes("network") || error.message.includes("Network")) {
+        userMessage = "Network error. Please check your internet connection and try again.";
+        toast.error("Upload Failed", { description: userMessage });
+      } else if (error.message.includes("timeout")) {
+        userMessage = "Upload timed out. Please try again with a better connection.";
+        toast.error("Upload Failed", { description: userMessage });
+      } else {
+        toast.error("Upload Failed", { description: userMessage });
       }
     },
   });
@@ -77,22 +93,16 @@ export function FileUpload() {
 
   const handleUpload = useCallback(async () => {
     if (!connected || !account || !signAndSubmitTransaction) {
-      setModalConfig({
-        title: "Wallet Not Connected",
-        message: "Please connect your wallet first",
-        type: "info",
+      toast.error("Wallet Not Connected", {
+        description: "Please connect your wallet first",
       });
-      setModalOpen(true);
       return;
     }
 
     if (selectedFiles.length === 0) {
-      setModalConfig({
-        title: "No Files Selected",
-        message: "Please select at least one file",
-        type: "info",
+      toast.error("No Files Selected", {
+        description: "Please select at least one file",
       });
-      setModalOpen(true);
       return;
     }
 
@@ -212,14 +222,6 @@ export function FileUpload() {
         </div>
       )}
 
-      {/* Modal */}
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={modalConfig.title}
-        message={modalConfig.message}
-        type={modalConfig.type}
-      />
     </div>
   );
 }
