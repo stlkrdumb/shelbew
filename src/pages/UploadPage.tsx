@@ -1,20 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { FileUpload } from "../components/FileUpload";
-
+import { FloatingActionButton } from "../components/FloatingActionButton";
 
 export default function UploadPage() {
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
   return (
-    <div>
-      <header>
-        <div>
-          <h1 className="hidden">Shelby File Upload</h1>
-        </div>
-      </header>
-      <main>
-        <FileUpload/>
-      </main>
-    </div>
+    <>
+      <FloatingActionButton onClick={() => setIsUploadModalOpen(true)} />
+      
+      <FileUpload 
+        isOpen={isUploadModalOpen} 
+        onClose={() => setIsUploadModalOpen(false)} 
+      />
+    </>
   );
 }

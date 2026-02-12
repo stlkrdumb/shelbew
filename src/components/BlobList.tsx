@@ -2,89 +2,126 @@ import React, { useState } from "react";
 import { useAccountBlobs } from "@shelby-protocol/react";
 import { shelbyClient } from "../lib/shelby";
 
-export function BlobList({ account }) {
+import { Button } from "@/components/ui/button";
+import { File, HardDrive } from "lucide-react";
+import { BlobItem, type BlobData } from "./BlobItem";
+
+interface BlobListProps {
+  account: string;
+}
+
+export function BlobList({ account }: BlobListProps) {
   const { data: blobs, isLoading, error } = useAccountBlobs({
     client: shelbyClient,
     account,
-    refetchInterval: 1,
+    refetchInterval: 5000, // Refetch every 5s to keep list updated
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3; // Adjust as needed
+  const itemsPerPage = 8; // Increased for grid view
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-shelbypink"></div>
+        <p className="text-gray-400">Loading your files...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center border border-red-500/50 bg-red-500/10 rounded-lg">
+        <p className="text-red-400">Error loading files: {error.message}</p>
+      </div>
+    );
+  }
 
   // Sort blobs by creationMicros (newest first)
   const sortedBlobs = blobs ? [...blobs].sort((a, b) => {
     const timeA = a.creationMicros ? Number(a.creationMicros) : 0;
     const timeB = b.creationMicros ? Number(b.creationMicros) : 0;
-    return timeB - timeA; // Descending order (newest first)
+    return timeB - timeA;
   }) : [];
 
-  // Calculate pagination
+  // Pagination
   const totalPages = Math.ceil((sortedBlobs?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentBlobs = sortedBlobs?.slice(startIndex, endIndex) || [];
 
+
+
   return (
-    <div className="px-2 py-0 mx-auto w-full lg:w-1/2">
-      <div className="border border-shelbypink rounded-md">
-        {currentBlobs.map((blob) => (
-          <div key={blob.name} className="px-3 py-2 flex justify-between items-center border-b border-gray-500">
-            <p>
-              <span className="text-gray-400 text-xs">
-                {blob.blobNameSuffix.length > 20 ? blob.blobNameSuffix.substring(0, 20) + '.....' + blob.blobNameSuffix.slice(20, blob.blobNameSuffix.length) : blob.blobNameSuffix}
-              </span>
-            </p>
-            <a href={`https://api.shelbynet.shelby.xyz/shelby/v1/blobs/${account}/${blob.blobNameSuffix}`}
-              className="bg-shelbypink px-2 py-1 hover:bg-pink-500 rounded-sm text-white flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              <p className="hidden">Download</p>
-              <p className="text-xs text-white">{(blob.size / 1024).toFixed(2)} KB</p>
-            </a>
-          </div>
-        ))}
+    <div className="w-full max-w-7xl mx-auto p-6">
+      
+      {/* Header Section */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <HardDrive className="w-6 h-6 text-shelbypink" />
+            My Files
+          </h2>
+          <p className="text-gray-400 text-sm mt-1">
+            {sortedBlobs.length} items stored on Shelby Network
+          </p>
+        </div>
       </div>
+
+      {/* Empty State */}
+      {currentBlobs.length === 0 ? (
+        <div className="text-center py-20 border-2 border-dashed border-gray-700 rounded-xl bg-gray-800/30">
+          <div className="bg-gray-700/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <File className="w-10 h-10 text-gray-400" />
+          </div>
+          <h3 className="text-xl font-medium text-white mb-2">No files found</h3>
+          <p className="text-gray-400 max-w-sm mx-auto">
+            Upload files using the button in the bottom right corner to get started.
+          </p>
+        </div>
+      ) : (
+        /* Grid Layout */
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {currentBlobs.map((blob) => (
+            <BlobItem key={blob.name} blob={blob as unknown as BlobData} account={account} />
+          ))}
+        </div>
+      )}
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
-          <button
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1 bg-shelbypink text-white rounded 
-            disabled:opacity-50 disabled:cursor-not-allowed 
-            hover:bg-pink-600 cursor-pointer flex items-center gap-1"
+            className={`
+              border-shelbypink text-shelbypink hover:bg-shelbypink hover:text-white transition-colors
+              ${currentPage === 1 ? "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-shelbypink" : ""}
+            `}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="hidden lg:block">Previous</span>
-          </button>
+            Previous
+          </Button>
 
-          <span className="text-gray-300">
+          <span className="text-sm text-gray-400 font-medium bg-gray-800 px-3 py-1 rounded-md border border-gray-700">
             Page {currentPage} of {totalPages}
           </span>
 
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-shelbypink 
-            text-white rounded 
-            disabled:opacity-50 disabled:cursor-not-allowed 
-            hover:bg-pink-600 cursor-pointer flex items-center gap-1"
+            className={`
+              border-shelbypink text-shelbypink hover:bg-shelbypink hover:text-white transition-colors
+              ${currentPage === totalPages ? "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-shelbypink" : ""}
+            `}
           >
-            <span className="hidden lg:block">Next</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+            Next
+          </Button>
         </div>
       )}
     </div>
   );
-}
+};
