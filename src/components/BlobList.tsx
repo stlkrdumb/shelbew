@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useAccountBlobs } from "@shelby-protocol/react";
 import { shelbyClient } from "../lib/shelby";
 
-import { Button } from "@/components/ui/button";
-import { File, HardDrive } from "lucide-react";
+
+import { File, HardDrive, ChevronLeft, ChevronRight } from "lucide-react";
 import { BlobItem, type BlobData } from "./BlobItem";
 import { FilePreviewModal } from "./FilePreviewModal";
 
@@ -97,36 +97,43 @@ export function BlobList({ account }: BlobListProps) {
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-8">
-          <Button
-            variant="outline"
-            size="sm"
+        <div className="flex justify-center items-center gap-3 mt-8">
+          <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className={`
-              border-shelbypink text-shelbypink hover:bg-shelbypink hover:text-white transition-colors
-              ${currentPage === 1 ? "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-shelbypink" : ""}
+              group flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
+              ${currentPage === 1 
+                ? "bg-chocodark/50 text-gray-600 cursor-not-allowed" 
+                : "bg-chocodark border border-gray-700 text-gray-300 hover:border-shelbypink/50 hover:text-chocodark hover:bg-shelbypink"
+              }
             `}
           >
+            <ChevronLeft className={`w-4 h-4 transition-transform ${currentPage !== 1 ? 'group-hover:-translate-x-0.5' : ''}`} />
             Previous
-          </Button>
+          </button>
 
-          <span className="text-sm text-gray-400 font-medium bg-gray-800 px-3 py-1 rounded-md border border-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-chocodark border border-gray-700 rounded-lg">
+            <span className="text-sm text-gray-400">Page</span>
+            <span className="text-sm font-bold text-shelbypink">{currentPage}</span>
+            <span className="text-sm text-gray-600">/</span>
+            <span className="text-sm text-gray-400">{totalPages}</span>
+          </div>
 
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
             className={`
-              border-shelbypink text-shelbypink hover:bg-shelbypink hover:text-white transition-colors
-              ${currentPage === totalPages ? "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-shelbypink" : ""}
+              group flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
+              ${currentPage === totalPages 
+                ? "bg-chocodark/50 text-gray-600 cursor-not-allowed" 
+                : "bg-chocodark border border-gray-700 text-gray-300 hover:border-shelbypink/50 hover:text-chocodark hover:bg-shelbypink"
+              }
             `}
           >
             Next
-          </Button>
+            <ChevronRight className={`w-4 h-4 transition-transform ${currentPage !== totalPages ? 'group-hover:translate-x-0.5' : ''}`} />
+          </button>
         </div>
       )}
 
