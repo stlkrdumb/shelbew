@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { 
   File, 
   Clock, 
@@ -26,6 +26,32 @@ interface BlobItemProps {
 export function BlobItem({ blob, account, onClick }: BlobItemProps) {
   const [imageError, setImageError] = React.useState(false);
   const [imageLoaded, setImageLoaded] = React.useState(false);
+  const [shouldLoad, setShouldLoad] = React.useState(false);
+  const [retryCount, setRetryCount] = React.useState(0);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  // Lazy loading with Intersection Observer
+  useEffect(() => {
+    if (!imgRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        rootMargin: '50px', // Start loading 50px before coming into view
+      }
+    );
+
+    observer.observe(imgRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -77,19 +103,45 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
 
   return (
     <div 
+      ref={imgRef}
       onClick={onClick}
       className="group overflow-hidden w-full relative cursor-pointer"
     >
       {/* Main content with natural aspect ratio */}
       <div className="relative w-full">
         {/* Render Image if it's an image file and hasn't errored */}
-        {isImage && !imageError && (
+        {isImage && !imageError && shouldLoad && (
           <img
             src={imageUrl}
             alt={fileName}
             className={`w-full h-auto transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
+            onLoad={() => {
+              console.log('Image loaded successfully:', fileName);
+              setImageLoaded(true);
+              setRetryCount(0); // Reset retry count on success
+            }}
+            onError={(e) => {
+              console.error('Image load failed:', fileName, imageUrl, e);
+              
+              // Check if it's a rate limit error (429) and retry with exponential backoff
+              if (retryCount < 3) {
+                const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+                console.log(`Retrying image load in ${delay}ms (attempt ${retryCount + 1}/3)`);
+                
+                setTimeout(() => {
+                  setRetryCount(prev => prev + 1);
+                  // Force re-render by toggling a key or using a timestamp in URL
+                  const img = e.currentTarget;
+                  const originalSrc = img.src;
+                  img.src = ''; // Clear src
+                  setTimeout(() => {
+                    img.src = `${originalSrc}?retry=${retryCount + 1}`; // Add retry param
+                  }, 10);
+                }, delay);
+              } else {
+                setImageError(true);
+              }
+            }}
           />
         )}
 
@@ -110,7 +162,7 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
         )}
 
         {/* Render Icon if not an image/video, or if media failed to load */}
-        {(!isImage && !['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '') || (isImage && imageError)) && (
+        {(!isImage && !['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '') || (isImage && imageError) || (isImage && !imageLoaded)) && (
           <div className={`w-full aspect-square bg-chocodark flex items-center justify-center ${isImage && !imageError && !imageLoaded ? 'animate-pulse' : ''}`}>
             {getIcon()}
           </div>

@@ -4,6 +4,7 @@ import React, { useState, useCallback } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useUploadBlobs } from "@shelby-protocol/react";
 import { shelbyClient } from "../lib/shelby";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { toast } from "sonner";
 
@@ -14,6 +15,7 @@ interface FileUploadProps {
 
 export function FileUpload({ isOpen, onClose }: FileUploadProps) {
   const { account, signAndSubmitTransaction, connected } = useWallet();
+  const queryClient = useQueryClient();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -62,10 +64,16 @@ export function FileUpload({ isOpen, onClose }: FileUploadProps) {
       }
       
       setSelectedFiles([]);
-      onClose(); // Close modal on success
+      
+      // Invalidate the blobs query to trigger a refetch - React way!
+      queryClient.invalidateQueries({ 
+        queryKey: ['accountBlobs', account?.address.toStringLongWithoutPrefix()] 
+      });
+      
+      // Small delay before closing to show success state
       setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+        onClose();
+      }, 500);
     },
     onError: (error) => {
       // Provide user-friendly error messages
