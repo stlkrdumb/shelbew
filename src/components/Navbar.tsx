@@ -1,16 +1,22 @@
 import React from "react";
-import { WalletConnection } from "./WalletConnection"
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { WalletSelector } from "./WalletSelector";
 
-export function Navbar() {
-    return (
-        <div className="container text-center mx-auto lg:p-8 p-2">
-            <nav className="p-2 bg-chocodark text-white text-lg flex flex-row items-center justify-between">
-                <p className="logo flex items-center">
-                    <img src="./logo.svg" className="w-12 mr-2 h-auto"/>
-                    <span className="font-bold text-shelbypink">Shelbew</span></p>
-                <WalletConnection/>
-            </nav>
-        </div>
-        
-    )
-}
+export const Navbar = () => {
+  const { connected } = useWallet();
+
+  return (
+    <nav className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-300 ${
+      connected ? 'bg-chocodark border-b border-gray-800' : 'bg-transparent'
+    }`}>
+      {/* Logo */}
+      <div className="flex items-center gap-2">
+        <img src="/logo.svg" alt="Logo" className="w-10 h-10" />
+        <span className="text-xl font-bold text-white">Shelbew</span>
+      </div>
+
+      {/* Wallet Selector */}
+      <WalletSelector />
+    </nav>
+  );
+};

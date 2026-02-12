@@ -93,7 +93,7 @@ export function BlobList({ account }: BlobListProps) {
   const hasMore = displayFiles.length > displayCount;
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
+    <div className="w-full max-w-7xl mx-auto p-6 space-y-6 mt-15">
       {/* Header with Tab Navigation */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
