@@ -5,6 +5,7 @@ import { shelbyClient } from "../lib/shelby";
 import { Button } from "@/components/ui/button";
 import { File, HardDrive } from "lucide-react";
 import { BlobItem, type BlobData } from "./BlobItem";
+import { FilePreviewModal } from "./FilePreviewModal";
 
 interface BlobListProps {
   account: string;
@@ -18,6 +19,7 @@ export function BlobList({ account }: BlobListProps) {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedBlob, setSelectedBlob] = useState<BlobData | null>(null);
   const itemsPerPage = 8; // Increased for grid view
 
   if (isLoading) {
@@ -83,7 +85,12 @@ export function BlobList({ account }: BlobListProps) {
         /* Grid Layout */
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {currentBlobs.map((blob) => (
-            <BlobItem key={blob.name} blob={blob as unknown as BlobData} account={account} />
+            <BlobItem 
+              key={blob.name} 
+              blob={blob as unknown as BlobData} 
+              account={account} 
+              onClick={() => setSelectedBlob(blob as unknown as BlobData)}
+            />
           ))}
         </div>
       )}
@@ -122,6 +129,14 @@ export function BlobList({ account }: BlobListProps) {
           </Button>
         </div>
       )}
+
+      {/* File Preview Modal */}
+      <FilePreviewModal
+        blob={selectedBlob}
+        isOpen={!!selectedBlob}
+        onClose={() => setSelectedBlob(null)}
+        account={account}
+      />
     </div>
   );
 };

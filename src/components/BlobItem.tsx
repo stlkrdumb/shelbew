@@ -1,17 +1,8 @@
 
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { 
   File, 
-  MoreVertical, 
-  Download, 
   Clock, 
   FileText, 
   Image as ImageIcon, 
@@ -29,9 +20,10 @@ export interface BlobData {
 interface BlobItemProps {
   blob: BlobData;
   account: string;
+  onClick: () => void;
 }
 
-export function BlobItem({ blob, account }: BlobItemProps) {
+export function BlobItem({ blob, account, onClick }: BlobItemProps) {
   const [imageError, setImageError] = React.useState(false);
   const [imageLoaded, setImageLoaded] = React.useState(false);
 
@@ -84,7 +76,10 @@ export function BlobItem({ blob, account }: BlobItemProps) {
   };
 
   return (
-    <Card className="bg-chocodark border-gray-700 hover:border-shelbypink/50 transition-all duration-300 hover:shadow-lg hover:shadow-shelbypink/10 group overflow-hidden h-64 relative p-0 gap-0 block">
+    <Card 
+      onClick={onClick}
+      className="bg-chocodark border-gray-700 hover:border-shelbypink/50 transition-all duration-300 hover:shadow-lg hover:shadow-shelbypink/10 group overflow-hidden h-64 relative p-0 gap-0 block cursor-pointer"
+    >
       <div className="p-0 absolute inset-0 z-0">
         {/* Image Preview / Icon Area - Covers the card */}
         <div className="w-full h-full bg-gray-900 flex items-center justify-center relative group-hover:opacity-90 transition-opacity">
@@ -109,29 +104,7 @@ export function BlobItem({ blob, account }: BlobItemProps) {
 
         </div>
 
-        {/* Options Menu - Overlay */}
-        <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 text-white hover:bg-black/60 hover:text-white rounded-full backdrop-blur-sm">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700 text-gray-200">
-              <DropdownMenuItem asChild>
-                <a
-                  href={`https://api.shelbynet.shelby.xyz/shelby/v1/blobs/${account}/${blob.blobNameSuffix}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="cursor-pointer flex items-center gap-2 hover:bg-gray-700 focus:bg-gray-700"
-                >
-                  <Download className="w-4 h-4" />
-                  Download
-                </a>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 px-3 py-2 flex items-center justify-between text-[10px] text-gray-200 bg-black/60 backdrop-blur-sm shrink-0 h-10 z-10">
