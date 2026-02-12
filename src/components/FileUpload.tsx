@@ -255,9 +255,9 @@ export function FileUpload({ isOpen, onClose }: FileUploadProps) {
               <p className="text-sm font-medium text-gray-400 mb-2">Selected Files ({selectedFiles.length})</p>
               <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-2 pr-1">
                 {selectedFiles.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3 border border-gray-700 group hover:border-shelbypink/30 transition-all">
+                  <div key={index} className="flex items-center justify-between bg-chocodark/50 rounded-lg p-3 border border-gray-700 group hover:border-shelbypink/30 transition-all">
                     <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-8 h-8 rounded bg-gray-700 flex items-center justify-center text-gray-400">
+                      <div className="w-8 h-8 rounded bg-chocodark flex items-center justify-center text-gray-400">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -295,7 +295,7 @@ export function FileUpload({ isOpen, onClose }: FileUploadProps) {
                     px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border cursor-pointer
                     ${selectedDuration === days
                       ? "bg-shelbypink text-white border-shelbypink shadow-lg shadow-shelbypink/20"
-                      : "bg-chocodark text-gray-400 border-gray-700 hover:border-shelbypink/50 hover:text-white hover:bg-gray-700"
+                      : "bg-chocodark text-gray-400 border-gray-700 hover:border-shelbypink/50 hover:text-white hover:bg-chocodark/80"
                     }
                   `}
                 >
@@ -338,7 +338,7 @@ export function FileUpload({ isOpen, onClose }: FileUploadProps) {
             className={`
               px-6 py-2 rounded-lg font-bold text-white transition-all shadow-lg flex items-center gap-2 cursor-pointer
               ${uploadBlobs.isPending || selectedFiles.length === 0 || !connected
-                ? "bg-gray-700 cursor-not-allowed opacity-50" 
+                ? "bg-chocodark/50 cursor-not-allowed opacity-50" 
                 : "bg-linear-to-r from-shelbypink to-pink-600 hover:from-pink-500 hover:to-shelbypink hover:shadow-pink-500/20"
               }
             `}

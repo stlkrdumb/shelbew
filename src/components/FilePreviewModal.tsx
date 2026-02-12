@@ -119,7 +119,7 @@ export function FilePreviewModal({
     if (isAudio) {
       return (
         <div className="w-full h-[60vh] flex flex-col items-center justify-center p-8 gap-4">
-          <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center text-green-400">
+          <div className="w-24 h-24 rounded-full bg-chocodark flex items-center justify-center text-green-400">
              <Music className="w-12 h-12" />
           </div>
           <audio src={fileUrl} controls className="w-full max-w-md" />

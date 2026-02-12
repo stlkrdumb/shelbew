@@ -111,7 +111,7 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
 
         {/* Render Icon if not an image/video, or if media failed to load */}
         {(!isImage && !['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '') || (isImage && imageError)) && (
-          <div className={`w-full aspect-square bg-gray-900 flex items-center justify-center ${isImage && !imageError && !imageLoaded ? 'animate-pulse' : ''}`}>
+          <div className={`w-full aspect-square bg-chocodark flex items-center justify-center ${isImage && !imageError && !imageLoaded ? 'animate-pulse' : ''}`}>
             {getIcon()}
           </div>
         )}

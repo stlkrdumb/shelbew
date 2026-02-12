@@ -20,6 +20,11 @@ export function BlobList({ account }: BlobListProps) {
 
   const [selectedBlob, setSelectedBlob] = useState<BlobData | null>(null);
   const [activeCategory, setActiveCategory] = useState<'media' | 'documents'>('media');
+  const [displayCount, setDisplayCount] = useState(12); // Initial number of items to show
+
+  const loadMore = () => {
+    setDisplayCount(prev => prev + 12); // Load 12 more items
+  };
 
   if (isLoading) {
     return (
@@ -84,6 +89,8 @@ export function BlobList({ account }: BlobListProps) {
   };
 
   const displayFiles = activeCategory === 'media' ? mediaFiles : documentFiles;
+  const visibleFiles = displayFiles.slice(0, displayCount);
+  const hasMore = displayFiles.length > displayCount;
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
@@ -102,12 +109,15 @@ export function BlobList({ account }: BlobListProps) {
         {/* Category Tabs */}
         <div className="flex gap-2">
           <button
-            onClick={() => setActiveCategory('media')}
+            onClick={() => {
+              setActiveCategory('media');
+              setDisplayCount(12); // Reset count when switching tabs
+            }}
             className={`
               px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
               ${activeCategory === 'media'
                 ? 'bg-shelbypink text-white shadow-lg shadow-shelbypink/20'
-                : 'bg-chocodark text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-700'
+                : 'bg-chocodark text-gray-400 hover:text-white hover:bg-chocodark/80 border border-gray-700'
               }
             `}
           >
@@ -115,12 +125,15 @@ export function BlobList({ account }: BlobListProps) {
             <span className="ml-2 text-xs opacity-75">({mediaFiles.length})</span>
           </button>
           <button
-            onClick={() => setActiveCategory('documents')}
+            onClick={() => {
+              setActiveCategory('documents');
+              setDisplayCount(12); // Reset count when switching tabs
+            }}
             className={`
               px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
               ${activeCategory === 'documents'
                 ? 'bg-shelbypink text-white shadow-lg shadow-shelbypink/20'
-                : 'bg-chocodark text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-700'
+                : 'bg-chocodark text-gray-400 hover:text-white hover:bg-chocodark/80 border border-gray-700'
               }
             `}
           >
@@ -131,7 +144,7 @@ export function BlobList({ account }: BlobListProps) {
       </div>
 
       {/* Content Area */}
-      {displayFiles.length === 0 ? (
+      {visibleFiles.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 space-y-3 text-center">
           <File className="w-16 h-16 text-gray-600" />
           <h3 className="text-lg font-medium text-gray-400">No {activeCategory} files</h3>
@@ -144,7 +157,7 @@ export function BlobList({ account }: BlobListProps) {
           {/* Media Grid View */}
           {activeCategory === 'media' && (
             <div className="columns-2 md:columns-3 lg:columns-4 gap-0 space-y-0">
-              {mediaFiles.map((blob) => (
+              {visibleFiles.map((blob) => (
                 <div key={blob.name} className="break-inside-avoid mb-0">
                   <BlobItem 
                     blob={blob as unknown as BlobData} 
@@ -159,7 +172,7 @@ export function BlobList({ account }: BlobListProps) {
           {/* Documents List View */}
           {activeCategory === 'documents' && (
             <div className="space-y-2">
-              {documentFiles.map((blob) => {
+              {visibleFiles.map((blob) => {
                 const fileName = blob.name.split('/').pop() || blob.name;
                 const ext = fileName.split('.').pop()?.toLowerCase() || '';
                 
@@ -169,7 +182,7 @@ export function BlobList({ account }: BlobListProps) {
                     onClick={() => setSelectedBlob(blob as unknown as BlobData)}
                     className="flex items-center gap-4 px-4 py-3 bg-transparent border-b border-gray-800 hover:bg-chocodark/30 transition-all cursor-pointer group"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-blue-400 group-hover:bg-gray-700 transition-colors">
+                    <div className="w-10 h-10 rounded-lg bg-chocodark flex items-center justify-center text-blue-400 group-hover:bg-chocodark/80 transition-colors">
                       <File className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -178,12 +191,24 @@ export function BlobList({ account }: BlobListProps) {
                         {formatFileSize(blob.size)} • {formatDate(blob.creationMicros)}
                       </p>
                     </div>
-                    <div className="text-xs font-medium text-gray-500 uppercase px-2 py-1 bg-gray-800 rounded">
+                    <div className="text-xs font-medium text-gray-500 uppercase px-2 py-1 bg-chocodark rounded">
                       {ext}
                     </div>
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="flex justify-center pt-8">
+              <button
+                onClick={loadMore}
+                className="px-6 py-3 bg-shelbypink text-white font-medium rounded-lg hover:bg-shelbypink/90 transition-all duration-200 shadow-lg shadow-shelbypink/20"
+              >
+                Load More
+              </button>
             </div>
           )}
         </>
@@ -196,17 +221,17 @@ export function BlobList({ account }: BlobListProps) {
         onClose={() => setSelectedBlob(null)}
         account={account}
         onNavigate={(direction) => {
-          const currentIdx = displayFiles.findIndex(b => b.name === selectedBlob?.name);
-          if (direction === 'next' && currentIdx < displayFiles.length - 1) {
-            setSelectedBlob(displayFiles[currentIdx + 1] as unknown as BlobData);
+          const currentIdx = visibleFiles.findIndex(b => b.name === selectedBlob?.name);
+          if (direction === 'next' && currentIdx < visibleFiles.length - 1) {
+            setSelectedBlob(visibleFiles[currentIdx + 1] as unknown as BlobData);
           } else if (direction === 'prev' && currentIdx > 0) {
-            setSelectedBlob(displayFiles[currentIdx - 1] as unknown as BlobData);
+            setSelectedBlob(visibleFiles[currentIdx - 1] as unknown as BlobData);
           }
         }}
-        hasNext={selectedBlob ? displayFiles.findIndex(b => b.name === selectedBlob.name) < displayFiles.length - 1 : false}
-        hasPrev={selectedBlob ? displayFiles.findIndex(b => b.name === selectedBlob.name) > 0 : false}
-        currentIndex={selectedBlob ? displayFiles.findIndex(b => b.name === selectedBlob.name) : undefined}
-        totalCount={displayFiles.length}
+        hasNext={selectedBlob ? visibleFiles.findIndex(b => b.name === selectedBlob.name) < visibleFiles.length - 1 : false}
+        hasPrev={selectedBlob ? visibleFiles.findIndex(b => b.name === selectedBlob.name) > 0 : false}
+        currentIndex={selectedBlob ? visibleFiles.findIndex(b => b.name === selectedBlob.name) : undefined}
+        totalCount={visibleFiles.length}
       />
     </div>
   );
