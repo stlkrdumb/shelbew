@@ -28,7 +28,7 @@ export function FilePreviewModal({ blob, isOpen, onClose, account }: FilePreview
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
 
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext);
-  const isVideo = ['mp4', 'webm', 'mov', 'avi'].includes(ext);
+  const isVideo = ['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext);
   const isAudio = ['mp3', 'wav', 'ogg'].includes(ext);
   const isDocument = ['pdf', 'doc', 'docx', 'txt', 'md'].includes(ext);
 
@@ -101,7 +101,7 @@ export function FilePreviewModal({ blob, isOpen, onClose, account }: FilePreview
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-4xl bg-transparent border-none shadow-none text-white p-0 overflow-hidden flex flex-col max-h-[90vh]">
+      <DialogContent showCloseButton={false} className="sm:max-w-4xl bg-transparent border-none shadow-none text-white p-0 overflow-hidden flex flex-col max-h-[90vh]">
         
         <div className="flex-1 overflow-auto p-6 flex flex-col items-center justify-center">
             {renderPreview()}

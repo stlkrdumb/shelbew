@@ -57,7 +57,7 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
     let IconComponent = File;
     let colorClass = "text-gray-400";
 
-    if (['mp4', 'webm', 'mov', 'avi'].includes(ext || '')) {
+    if (['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '')) {
       IconComponent = Video;
       colorClass = "text-purple-400";
     } else if (['mp3', 'wav', 'ogg'].includes(ext || '')) {
@@ -95,8 +95,24 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
             />
           )}
 
-          {/* Render Icon if not an image, or if image failed to load, or if image is still loading (optional, but good for UX) */}
-          {(!isImage || imageError || !imageLoaded) && (
+          {/* Render Video Preview if it's a video file */}
+          {(!isImage && ['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '')) && (
+            <video
+              src={imageUrl}
+              className="w-full h-full object-cover"
+              muted
+              loop
+              playsInline
+              onMouseOver={(e) => e.currentTarget.play()}
+              onMouseOut={(e) => {
+                e.currentTarget.pause();
+                e.currentTarget.currentTime = 0;
+              }}
+            />
+          )}
+
+          {/* Render Icon if not an image/video, or if media failed to load */}
+          {(!isImage && !['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '') || (isImage && imageError)) && (
             <div className={`absolute inset-0 flex items-center justify-center ${isImage && !imageError && !imageLoaded ? 'animate-pulse' : ''} ${isImage && !imageError && imageLoaded ? 'hidden' : ''}`}>
                {getIcon()}
             </div>
