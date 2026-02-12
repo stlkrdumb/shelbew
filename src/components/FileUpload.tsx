@@ -233,7 +233,7 @@ export function FileUpload({ isOpen, onClose }: FileUploadProps) {
             />
             <div className="flex flex-col items-center pointer-events-none">
               <div className={`
-                w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mb-4 transition-colors
+                w-16 h-16 rounded-full bg-chocodark flex items-center justify-center mb-4 transition-colors
                 ${isDragging ? "bg-shelbypink text-white" : "text-shelbypink"}
               `}>
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,10 +292,10 @@ export function FileUpload({ isOpen, onClose }: FileUploadProps) {
                   key={days}
                   onClick={() => handleDurationChange(days)}
                   className={`
-                    px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border
+                    px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border cursor-pointer
                     ${selectedDuration === days
                       ? "bg-shelbypink text-white border-shelbypink shadow-lg shadow-shelbypink/20"
-                      : "bg-gray-800 text-gray-400 border-gray-700 hover:border-shelbypink/50 hover:text-white hover:bg-gray-700"
+                      : "bg-chocodark text-gray-400 border-gray-700 hover:border-shelbypink/50 hover:text-white hover:bg-gray-700"
                     }
                   `}
                 >

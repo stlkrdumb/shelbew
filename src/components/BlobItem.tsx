@@ -7,7 +7,8 @@ import {
   FileText, 
   Image as ImageIcon, 
   Music, 
-  Video 
+  Video,
+  Eye
 } from "lucide-react";
 
 export interface BlobData {
@@ -78,7 +79,7 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
   return (
     <Card 
       onClick={onClick}
-      className="bg-chocodark border-gray-700 hover:border-shelbypink/50 transition-all duration-300 hover:shadow-lg hover:shadow-shelbypink/10 group overflow-hidden h-64 relative p-0 gap-0 block cursor-pointer"
+      className="bg-chocodark border-gray-700 hover:border-shelbypink/50 transition-all duration-300 hover:shadow-lg hover:shadow-shelbypink/10 hover:scale-[1.02] group overflow-hidden h-64 relative p-0 gap-0 block cursor-pointer"
     >
       <div className="p-0 absolute inset-0 z-0">
         {/* Image Preview / Icon Area - Covers the card */}
@@ -117,6 +118,14 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
                {getIcon()}
             </div>
           )}
+
+          {/* Hover Overlay - Shows "Click to preview" */}
+          <div className="absolute inset-0 bg-chocodark/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20 pointer-events-none backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-2 text-white transform scale-90 group-hover:scale-100 transition-transform duration-300">
+              <Eye className="w-10 h-10 text-shelbypink" />
+              <span className="text-sm font-semibold tracking-wide">Click to preview</span>
+            </div>
+          </div>
 
         </div>
 

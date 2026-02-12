@@ -136,6 +136,18 @@ export function BlobList({ account }: BlobListProps) {
         isOpen={!!selectedBlob}
         onClose={() => setSelectedBlob(null)}
         account={account}
+        onNavigate={(direction) => {
+          const currentIdx = sortedBlobs.findIndex(b => b.name === selectedBlob?.name);
+          if (direction === 'next' && currentIdx < sortedBlobs.length - 1) {
+            setSelectedBlob(sortedBlobs[currentIdx + 1] as unknown as BlobData);
+          } else if (direction === 'prev' && currentIdx > 0) {
+            setSelectedBlob(sortedBlobs[currentIdx - 1] as unknown as BlobData);
+          }
+        }}
+        hasNext={selectedBlob ? sortedBlobs.findIndex(b => b.name === selectedBlob.name) < sortedBlobs.length - 1 : false}
+        hasPrev={selectedBlob ? sortedBlobs.findIndex(b => b.name === selectedBlob.name) > 0 : false}
+        currentIndex={selectedBlob ? sortedBlobs.findIndex(b => b.name === selectedBlob.name) : undefined}
+        totalCount={sortedBlobs.length}
       />
     </div>
   );
