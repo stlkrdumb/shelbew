@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card } from "@/components/ui/card";
 import { 
   File, 
   Clock, 
@@ -77,70 +76,65 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
   };
 
   return (
-    <Card 
+    <div 
       onClick={onClick}
-      className="bg-chocodark border-gray-700 hover:border-shelbypink/50 transition-all duration-300 hover:shadow-lg hover:shadow-shelbypink/10 hover:scale-[1.02] group overflow-hidden h-64 relative p-0 gap-0 block cursor-pointer"
+      className="group overflow-hidden w-full relative cursor-pointer"
     >
-      <div className="p-0 absolute inset-0 z-0">
-        {/* Image Preview / Icon Area - Covers the card */}
-        <div className="w-full h-full bg-chocodark flex items-center justify-center relative group-hover:opacity-90 transition-opacity">
-          
-          {/* Render Image if it's an image file and hasn't errored */}
-          {isImage && !imageError && (
-            <img
-              src={imageUrl}
-              alt={fileName}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
-            />
-          )}
+      {/* Main content with natural aspect ratio */}
+      <div className="relative w-full">
+        {/* Render Image if it's an image file and hasn't errored */}
+        {isImage && !imageError && (
+          <img
+            src={imageUrl}
+            alt={fileName}
+            className={`w-full h-auto transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+          />
+        )}
 
-          {/* Render Video Preview if it's a video file */}
-          {(!isImage && ['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '')) && (
-            <video
-              src={imageUrl}
-              className="w-full h-full object-cover"
-              muted
-              loop
-              playsInline
-              onMouseOver={(e) => e.currentTarget.play()}
-              onMouseOut={(e) => {
-                e.currentTarget.pause();
-                e.currentTarget.currentTime = 0;
-              }}
-            />
-          )}
+        {/* Render Video Preview if it's a video file */}
+        {(!isImage && ['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '')) && (
+          <video
+            src={imageUrl}
+            className="w-full h-auto"
+            muted
+            loop
+            playsInline
+            onMouseOver={(e) => e.currentTarget.play()}
+            onMouseOut={(e) => {
+              e.currentTarget.pause();
+              e.currentTarget.currentTime = 0;
+            }}
+          />
+        )}
 
-          {/* Render Icon if not an image/video, or if media failed to load */}
-          {(!isImage && !['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '') || (isImage && imageError)) && (
-            <div className={`absolute inset-0 flex items-center justify-center ${isImage && !imageError && !imageLoaded ? 'animate-pulse' : ''} ${isImage && !imageError && imageLoaded ? 'hidden' : ''}`}>
-               {getIcon()}
-            </div>
-          )}
-
-          {/* Hover Overlay - Shows "Click to preview" */}
-          <div className="absolute inset-0 bg-chocodark/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20 pointer-events-none backdrop-blur-sm">
-            <div className="flex flex-col items-center gap-2 text-white transform scale-90 group-hover:scale-100 transition-transform duration-300">
-              <Eye className="w-10 h-10 text-shelbypink" />
-              <span className="text-sm font-semibold tracking-wide">Click to preview</span>
-            </div>
+        {/* Render Icon if not an image/video, or if media failed to load */}
+        {(!isImage && !['mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv'].includes(ext || '') || (isImage && imageError)) && (
+          <div className={`w-full aspect-square bg-gray-900 flex items-center justify-center ${isImage && !imageError && !imageLoaded ? 'animate-pulse' : ''}`}>
+            {getIcon()}
           </div>
+        )}
 
+        {/* Hover Overlay - Shows "Click to preview" */}
+        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20 pointer-events-none backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-2 text-white transform scale-90 group-hover:scale-100 transition-transform duration-300">
+            <Eye className="w-10 h-10 text-shelbypink" />
+            <span className="text-sm font-semibold tracking-wide">Click to preview</span>
+          </div>
         </div>
 
-
+        {/* Bottom metadata bar */}
+        <div className="absolute bottom-0 left-0 right-0 px-3 py-2 flex items-center justify-between text-[10px] text-gray-200 bg-black/60 backdrop-blur-sm shrink-0 h-10 z-10">
+          <div className="flex items-center gap-1">
+            <span className="font-medium">{formatFileSize(blob.size)}</span>
+          </div>
+          <div className="flex items-center gap-1" title={new Date(Number(blob.creationMicros) / 1000).toLocaleString()}>
+            <Clock className="w-3 h-3" />
+            <span>{formatDate(blob.creationMicros)}</span>
+          </div>
+        </div>
       </div>
-
-      <div className="absolute bottom-0 left-0 right-0 px-3 py-2 flex items-center justify-between text-[10px] text-gray-200 bg-black/60 backdrop-blur-sm shrink-0 h-10 z-10">
-        <div className="flex items-center gap-1">
-          <span className="font-medium">{formatFileSize(blob.size)}</span>
-        </div>
-        <div className="flex items-center gap-1" title={new Date(Number(blob.creationMicros) / 1000).toLocaleString()}>
-          <Clock className="w-3 h-3" />
-          <span>{formatDate(blob.creationMicros)}</span>
-        </div>
-      </div>
-    </Card>
+    </div>
   );
 }

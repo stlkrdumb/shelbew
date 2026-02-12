@@ -3,9 +3,9 @@ import { useAccountBlobs } from "@shelby-protocol/react";
 import { shelbyClient } from "../lib/shelby";
 
 
-import { File, HardDrive, ChevronLeft, ChevronRight } from "lucide-react";
+import { File, HardDrive } from "lucide-react";
 import { BlobItem, type BlobData } from "./BlobItem";
-import { FilePreviewModal } from "./FilePreviewModal";
+import  { FilePreviewModal } from "./FilePreviewModal";
 
 interface BlobListProps {
   account: string;
@@ -18,9 +18,8 @@ export function BlobList({ account }: BlobListProps) {
     refetchInterval: 5000, // Refetch every 5s to keep list updated
   });
 
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedBlob, setSelectedBlob] = useState<BlobData | null>(null);
-  const itemsPerPage = 8; // Increased for grid view
+  const [activeCategory, setActiveCategory] = useState<'media' | 'documents'>('media');
 
   if (isLoading) {
     return (
@@ -46,95 +45,148 @@ export function BlobList({ account }: BlobListProps) {
     return timeB - timeA;
   }) : [];
 
-  // Pagination
-  const totalPages = Math.ceil((sortedBlobs?.length || 0) / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentBlobs = sortedBlobs?.slice(startIndex, endIndex) || [];
+  // Helper: Categorize files
+  const getFileCategory = (fileName: string): 'media' | 'document' | 'other' => {
+    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    
+    const mediaExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'mp4', 'webm', 'mov', 'avi', 'm4v', 'mkv', 'ogv', 'mp3', 'wav', 'ogg'];
+    const documentExtensions = ['pdf', 'doc', 'docx', 'txt', 'md', 'rtf', 'odt', 'xlsx', 'xls', 'ppt', 'pptx', 'csv'];
+    
+    if (mediaExtensions.includes(ext)) return 'media';
+    if (documentExtensions.includes(ext)) return 'document';
+    return 'other';
+  };
 
+  // Categorize files
+  const mediaFiles = sortedBlobs.filter(blob => getFileCategory(blob.name) === 'media');
+  const documentFiles = sortedBlobs.filter(blob => {
+    const category = getFileCategory(blob.name);
+    return category === 'document' || category === 'other';
+  });
 
+  // Helper for formatting
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const formatDate = (micros?: string | number) => {
+    if (!micros) return 'Unknown';
+    const date = new Date(Number(micros) / 1000);
+    return date.toLocaleDateString(undefined, { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const displayFiles = activeCategory === 'media' ? mediaFiles : documentFiles;
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6">
-      
-      {/* Header Section */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <HardDrive className="w-6 h-6 text-shelbypink" />
-            My Files
-          </h2>
-          <p className="text-gray-400 text-sm mt-1">
-            {sortedBlobs.length} items stored on Shelby Network
-          </p>
+    <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
+      {/* Header with Tab Navigation */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <HardDrive className="w-6 h-6 text-shelbypink" />
+          <div>
+            <h2 className="text-xl font-semibold text-white">My Files</h2>
+            <p className="text-sm text-gray-400">
+              {sortedBlobs.length} {sortedBlobs.length === 1 ? 'item' : 'items'} stored on Shelby Network
+            </p>
+          </div>
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveCategory('media')}
+            className={`
+              px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
+              ${activeCategory === 'media'
+                ? 'bg-shelbypink text-white shadow-lg shadow-shelbypink/20'
+                : 'bg-chocodark text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-700'
+              }
+            `}
+          >
+            Media
+            <span className="ml-2 text-xs opacity-75">({mediaFiles.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveCategory('documents')}
+            className={`
+              px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
+              ${activeCategory === 'documents'
+                ? 'bg-shelbypink text-white shadow-lg shadow-shelbypink/20'
+                : 'bg-chocodark text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-700'
+              }
+            `}
+          >
+            Documents
+            <span className="ml-2 text-xs opacity-75">({documentFiles.length})</span>
+          </button>
         </div>
       </div>
 
-      {/* Empty State */}
-      {currentBlobs.length === 0 ? (
-        <div className="text-center py-20 border-2 border-dashed border-gray-700 rounded-xl bg-gray-800/30">
-          <div className="bg-gray-700/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <File className="w-10 h-10 text-gray-400" />
-          </div>
-          <h3 className="text-xl font-medium text-white mb-2">No files found</h3>
+      {/* Content Area */}
+      {displayFiles.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 space-y-3 text-center">
+          <File className="w-16 h-16 text-gray-600" />
+          <h3 className="text-lg font-medium text-gray-400">No {activeCategory} files</h3>
           <p className="text-gray-400 max-w-sm mx-auto">
-            Upload files using the button in the bottom right corner to get started.
+            Upload {activeCategory} files using the button in the bottom right corner.
           </p>
         </div>
       ) : (
-        /* Grid Layout */
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {currentBlobs.map((blob) => (
-            <BlobItem 
-              key={blob.name} 
-              blob={blob as unknown as BlobData} 
-              account={account} 
-              onClick={() => setSelectedBlob(blob as unknown as BlobData)}
-            />
-          ))}
-        </div>
-      )}
+        <>
+          {/* Media Grid View */}
+          {activeCategory === 'media' && (
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-0 space-y-0">
+              {mediaFiles.map((blob) => (
+                <div key={blob.name} className="break-inside-avoid mb-0">
+                  <BlobItem 
+                    blob={blob as unknown as BlobData} 
+                    account={account} 
+                    onClick={() => setSelectedBlob(blob as unknown as BlobData)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-3 mt-8">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className={`
-              group flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
-              ${currentPage === 1 
-                ? "bg-chocodark/50 text-gray-600 cursor-not-allowed" 
-                : "bg-chocodark border border-gray-700 text-gray-300 hover:border-shelbypink/50 hover:text-chocodark hover:bg-shelbypink"
-              }
-            `}
-          >
-            <ChevronLeft className={`w-4 h-4 transition-transform ${currentPage !== 1 ? 'group-hover:-translate-x-0.5' : ''}`} />
-            Previous
-          </button>
-
-          <div className="flex items-center gap-2 px-4 py-2 bg-chocodark border border-gray-700 rounded-lg">
-            <span className="text-sm text-gray-400">Page</span>
-            <span className="text-sm font-bold text-shelbypink">{currentPage}</span>
-            <span className="text-sm text-gray-600">/</span>
-            <span className="text-sm text-gray-400">{totalPages}</span>
-          </div>
-
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className={`
-              group flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
-              ${currentPage === totalPages 
-                ? "bg-chocodark/50 text-gray-600 cursor-not-allowed" 
-                : "bg-chocodark border border-gray-700 text-gray-300 hover:border-shelbypink/50 hover:text-chocodark hover:bg-shelbypink"
-              }
-            `}
-          >
-            Next
-            <ChevronRight className={`w-4 h-4 transition-transform ${currentPage !== totalPages ? 'group-hover:translate-x-0.5' : ''}`} />
-          </button>
-        </div>
+          {/* Documents List View */}
+          {activeCategory === 'documents' && (
+            <div className="space-y-2">
+              {documentFiles.map((blob) => {
+                const fileName = blob.name.split('/').pop() || blob.name;
+                const ext = fileName.split('.').pop()?.toLowerCase() || '';
+                
+                return (
+                  <div
+                    key={blob.name}
+                    onClick={() => setSelectedBlob(blob as unknown as BlobData)}
+                    className="flex items-center gap-4 px-4 py-3 bg-transparent border-b border-gray-800 hover:bg-chocodark/30 transition-all cursor-pointer group"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-blue-400 group-hover:bg-gray-700 transition-colors">
+                      <File className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{fileName}</p>
+                      <p className="text-xs text-gray-400">
+                        {formatFileSize(blob.size)} • {formatDate(blob.creationMicros)}
+                      </p>
+                    </div>
+                    <div className="text-xs font-medium text-gray-500 uppercase px-2 py-1 bg-gray-800 rounded">
+                      {ext}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
 
       {/* File Preview Modal */}
@@ -144,18 +196,18 @@ export function BlobList({ account }: BlobListProps) {
         onClose={() => setSelectedBlob(null)}
         account={account}
         onNavigate={(direction) => {
-          const currentIdx = sortedBlobs.findIndex(b => b.name === selectedBlob?.name);
-          if (direction === 'next' && currentIdx < sortedBlobs.length - 1) {
-            setSelectedBlob(sortedBlobs[currentIdx + 1] as unknown as BlobData);
+          const currentIdx = displayFiles.findIndex(b => b.name === selectedBlob?.name);
+          if (direction === 'next' && currentIdx < displayFiles.length - 1) {
+            setSelectedBlob(displayFiles[currentIdx + 1] as unknown as BlobData);
           } else if (direction === 'prev' && currentIdx > 0) {
-            setSelectedBlob(sortedBlobs[currentIdx - 1] as unknown as BlobData);
+            setSelectedBlob(displayFiles[currentIdx - 1] as unknown as BlobData);
           }
         }}
-        hasNext={selectedBlob ? sortedBlobs.findIndex(b => b.name === selectedBlob.name) < sortedBlobs.length - 1 : false}
-        hasPrev={selectedBlob ? sortedBlobs.findIndex(b => b.name === selectedBlob.name) > 0 : false}
-        currentIndex={selectedBlob ? sortedBlobs.findIndex(b => b.name === selectedBlob.name) : undefined}
-        totalCount={sortedBlobs.length}
+        hasNext={selectedBlob ? displayFiles.findIndex(b => b.name === selectedBlob.name) < displayFiles.length - 1 : false}
+        hasPrev={selectedBlob ? displayFiles.findIndex(b => b.name === selectedBlob.name) > 0 : false}
+        currentIndex={selectedBlob ? displayFiles.findIndex(b => b.name === selectedBlob.name) : undefined}
+        totalCount={displayFiles.length}
       />
     </div>
   );
-};
+}
