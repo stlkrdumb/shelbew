@@ -118,13 +118,20 @@ export function FileUpload() {
     );
 
     // Convert selected expiration date to microseconds
-    const expirationMicros = expirationDate.getTime() * 1000;
+    const expirationMicros = Math.floor(expirationDate.getTime() * 1000);
+
+    if (isNaN(expirationMicros)) {
+      toast.error("Invalid Date", {
+        description: "Please select a valid expiration date",
+      });
+      return;
+    }
 
     // Upload the blobs to the Shelby network
     uploadBlobs.mutate({
       signer: { account: account.address.toStringLongWithoutPrefix(), signAndSubmitTransaction },
       blobs,
-      expirationMicros,
+      expirationMicros: expirationMicros.toString() as unknown as number,
     });
   }, [connected, account, signAndSubmitTransaction, selectedFiles, uploadBlobs, expirationDate]);
 
