@@ -325,7 +325,7 @@ export function FileUpload({ isOpen, onClose }: FileUploadProps) {
         </div>
 
         {/* Footer Actions */}
-        <div className="p-6 border-t border-gray-800 bg-gray-900/50 flex justify-end gap-3">
+        <div className="p-6 border-t border-gray-800 bg-chocodark/50 flex justify-end gap-3">
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-400 hover:text-white font-medium transition-colors cursor-pointer"

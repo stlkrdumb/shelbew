@@ -82,7 +82,7 @@ export function BlobItem({ blob, account, onClick }: BlobItemProps) {
     >
       <div className="p-0 absolute inset-0 z-0">
         {/* Image Preview / Icon Area - Covers the card */}
-        <div className="w-full h-full bg-gray-900 flex items-center justify-center relative group-hover:opacity-90 transition-opacity">
+        <div className="w-full h-full bg-chocodark flex items-center justify-center relative group-hover:opacity-90 transition-opacity">
           
           {/* Render Image if it's an image file and hasn't errored */}
           {isImage && !imageError && (
