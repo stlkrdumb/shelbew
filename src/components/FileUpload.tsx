@@ -76,7 +76,22 @@ export function FileUpload({ isOpen, onClose }: FileUploadProps) {
       }, 500);
     },
     onError: (error) => {
-      // Provide user-friendly error messages
+      // Known Shelby backend issue: the RPC /complete endpoint returns 500.
+      // This means the file WAS registered on-chain (it'll appear as "Pending" in the explorer)
+      // but the actual data never reached the storage layer.
+      if (
+        error.message.includes("Failed to complete multipart upload") &&
+        error.message.includes("500")
+      ) {
+        toast.error("Upload Incomplete", {
+          description:
+            "Your file was registered on-chain but the data upload to storage failed (Shelby RPC returned 500). The blob will show as 'Pending' in the explorer. Please try again later or report this to the Shelby team.",
+          duration: 8000,
+        });
+        return;
+      }
+
+      // Provide user-friendly error messages for other errors
       let userMessage = "Something went wrong while uploading your files.";
       
       // 502 errors often mean the transaction succeeded but the server couldn't send confirmation
